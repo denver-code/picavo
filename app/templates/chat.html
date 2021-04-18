@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+        <title>Chat name: {{ room }} {{ name }}</title>
+        <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script src="https://www.thomasfrank.se/sessvars.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    </head>
+    <body>
+        <div class="conten_main">
+            <h1>Chat name: {{ room }}</h1>
+        <ul>
+                <li><label for="mutenot">Mute </label><input type="checkbox" id="mutenot" name="mutenot" onclick="mutenotf();"></li>
+                <li><label for="AutoScroll">AutoScroll </label><input type="checkbox" id="AutoScroll" name="AutoScroll" onclick="autoscrollf();" checked></li>
+        </ul>
+        <a href="#" onclick="leave_room();">Leave</a><br><br>
+        <article class="container">
+            <div id="messages" class="messages"></div>
+          </article><br><br>
+        <input id="text" size="80" placeholder="Enter your message here"><br><br>
+        </div>
+    </body>
+
+    <script type="text/javascript" charset="utf-8" >
+        var socket;
+        // sessvars.$.debug()
+        function mutenotf(){
+            if (document.getElementById('mutenot').checked) {
+                sessvars.mutenot = true
+            } else {
+                sessvars.mutenot = false
+            }
+        }
+        function autoscrollf(){
+            if (document.getElementById('AutoScroll').checked) {
+                sessvars.autoscroll = true
+            } else {
+                sessvars.autoscroll = false
+            }
+        }
+        if(document.getElementById('mutenot').checked != sessvars.mutenot){
+            document.getElementById("mutenot").checked = sessvars.mutenot;
+        }
+        if(document.getElementById('AutoScroll').checked != sessvars.autoscroll){
+            document.getElementById("AutoScroll").checked = sessvars.autoscroll;
+        }
+            Notification.requestPermission().then(function(result) {});
+            
+            var isActive = true;
+            function onBlur() {
+                isActive = false;
+            
+            }
+            function onFocus() {
+                isActive = true;
+            }
+            if (false) {
+                document.onfocusin = onFocus;
+                document.onfocusout = onBlur;
+            } else {
+                window.onfocus = onFocus;
+                window.onblur = onBlur;
+            }
+
+            function play() {
+            var audio = new Audio("{{ url_for('static', filename='Sound_17216.mp3') }}");
+            audio.play();
+            }
+            $(document).ready(function(){
+                socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+                socket.on('connect', function() {
+                    socket.emit('joined', {});
+                });
+                socket.on('status', function(data) {
+                    var div = document.getElementById("messages");
+
+                    var div2 = document.createElement('div');
+                    div2.classList.add("message", "info");
+                    div.appendChild(div2);
+
+                    var user_span = document.createElement('span');
+                    user_span.classList.add("nick");
+                    user_span.innerHTML =  "* | " + data.user; 
+                    div2.appendChild(user_span)
+
+                    var p_text = document.createElement('p');
+                    p_text.classList.add("text");
+                    p_text.innerHTML = data.msg;
+                    div2.appendChild(p_text);
+
+                });
+                socket.on('message', function(data) {
+                    var div = document.getElementById("messages");
+                    
+
+                    var div2 = document.createElement('div');
+                    if(data.user === "{{ name }}" ){
+                        div2.classList.add("me");
+                    } else{
+                        if (!document.getElementById('mutenot').checked) {
+                            if(isActive === false){
+                                play();
+                            }
+                        } 
+                    }
+                    div2.classList.add("message");
+                    div.appendChild(div2);
+
+                    var user_span = document.createElement('span');
+                    user_span.classList.add("nick");
+                    user_span.innerHTML =  data.user; 
+                    div2.appendChild(user_span)
+
+                    var p_text = document.createElement('p');
+                    p_text.classList.add("text");
+                    p_text.innerHTML = data.msg;
+                    div2.appendChild(p_text);
+                    
+                    if(document.getElementById("AutoScroll").checked){
+                        window.scrollTo(0,document.body.scrollHeight);
+                    }
+                });
+                $('#text').keypress(function(e) {
+                    var code = e.keyCode || e.which;
+                    if (code == 13) {
+                        text = $('#text').val();
+                        $('#text').val('');
+                        socket.emit('text', {msg: text});
+                    }
+                });
+            });
+            function leave_room() {
+                socket.emit('left', {}, function() {
+                    socket.disconnect();
+
+                    window.location.href = "{{ url_for('main.index') }}";
+                });
+            }
+            </script>
+</html>
