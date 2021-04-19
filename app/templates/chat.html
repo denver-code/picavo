@@ -69,7 +69,7 @@
             audio.play();
             }
             $(document).ready(function(){
-                socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+                socket = io.connect('http://' + document.domain + ':' + location.port + '/achat');
                 socket.on('connect', function() {
                     socket.emit('joined', {});
                 });
