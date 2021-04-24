@@ -2,8 +2,8 @@ import pymongo
 from bson.objectid import ObjectId
 
 #picavo_root 2oeTSzyEvU9dQ7FL
-
-client = pymongo.MongoClient("mongodb+srv://picavo_root:2oeTSzyEvU9dQ7FL@cluster0.lrj3x.mongodb.net/picavo?retryWrites=true&w=majority")
+#mongodb+srv://picavo_root:2oeTSzyEvU9dQ7FL@cluster0.lrj3x.mongodb.net/picavo?retryWrites=true&w=majority
+client = pymongo.MongoClient("mongodb://localhost:27017")
 db = client["picavo"]
 users = db["users"]
 
@@ -17,6 +17,9 @@ def find(db, idc=None, uname=None, mail=None):
         return globals()[db].find_one({'_id': ObjectId(idc)})
     elif mail:
         return globals()[db].find_one({'email': mail})
+
+def update_db(db, scdata,ndata):
+    return globals()[db].update_one(scdata, {'$set':ndata}, upsert=True)
 
 def is_used(db, idc=None, uname=None, mail=None):
     if uname:

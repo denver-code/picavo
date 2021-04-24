@@ -53,7 +53,13 @@ def signin():
 def signup():
     if request.method == "GET":
         return render_template("reg.html")
-    if check_mail(request.form["email"]) and request.form["password"] == request.form["repass"] and check_name(request.form["username"]):
+    usr_obj = {
+        "email":request.form["email"],
+        "password": request.form["password"],
+        "repass": request.form["repass"],
+        "username": request.form["username"]
+    }
+    if check_auth_data(usr_obj) == True:
         if not is_used("users", mail=request.form["email"]):
             insert_db("users",{
                 "username":request.form["username"],
@@ -64,8 +70,8 @@ def signup():
             flash("user already exist")
             return redirect(url_for(".signup"))
     else:
-        flash("Some data is invalid")
-        return redirect(url_for(".signup"))
+        flash(check_auth_data(usr_obj))
+        return render_template("reg.html"), 400
     
 @main.route("/logout", methods=["GET", "POST"])
 @login_required
