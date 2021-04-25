@@ -1,0 +1,90 @@
+@import 'fonts'
+
+$font-family1: 'Ubuntu'
+$font-family2: 'Raleway'
+$bg-color: #116466
+$color1: #D1E8E2
+$color2: #463F3A
+
+$input-btn-focus-color: rgba(#116466, .25)
+
+*
+    font-family: $font-family2
+
+h1, h2
+    font-family: $font-family1
+
+h1, h2
+    color: $color1
+
+h3, p, a, span, label
+    color: #fff
+
+a
+    text-decoration: none
+    transition: .2s
+    &:hover
+        color: $color1
+
+.mdi::before
+    font-size: 24px
+    line-height: 14px
+
+.btn .mdi::before
+    position: relative
+    top: 4px
+
+.btn-xs .mdi::before
+    font-size: 18px
+    top: 3px
+
+.btn-sm .mdi::before
+    font-size: 18px
+    top: 3px
+
+.dropdown-menu .mdi
+    width: 18px
+
+
+    &::before
+        position: relative
+        top: 4px
+        left: -8px
+
+.nav .mdi::before
+    position: relative
+    top: 4px
+
+.navbar .navbar-toggle .mdi::before
+    position: relative
+    top: 4px
+    color: #FFF
+
+.breadcrumb .mdi::before
+    position: relative
+    top: 4px
+
+.breadcrumb a:hover
+    text-decoration: none
+
+.breadcrumb a:hover span
+    text-decoration: underline
+
+.alert .mdi::before
+    position: relative
+    top: 4px
+    margin-right: 2px
+
+.input-group-addon .mdi::before
+    position: relative
+    top: 3px
+
+.navbar-brand .mdi::before
+    position: relative
+    top: 2px
+    margin-right: 2px
+
+.list-group-item .mdi::before
+    position: relative
+    top: 3px
+    left: -3px

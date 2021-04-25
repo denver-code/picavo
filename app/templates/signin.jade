@@ -1,0 +1,41 @@
+!!! 5
+html(lang="en")
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0, shrink-to-fit=no")
+        meta(http-equiv="X-UA-Compatible" content="IE=edge")
+        link(rel="stylesheet" href=url_for('static', filename='css/bootstrap.min.css'))
+        link(rel="stylesheet" href=url_for('static', filename='css/auth.css'))
+        title Sign In
+    body
+        main
+            - var messages = get_flashed_messages()
+            if messages
+                ul(class="flashes")
+                    for message in messages
+                        li= message
+            div(class="container")
+                div(class="block")
+                    h1 Sign In
+                    p Don’t have account? 
+                        a(href=url_for('.signup'))
+                            | Sign up!
+                    form(action="signin", method="post")
+                        div(class="inputs-group email-group")
+                            img(class="icon", src=url_for('static', filename='img/icons/svg/email.svg'))
+                            label(class="form-label", for="email")
+                                | Email 
+                            input(class="form-control", type="email", id="email", name="email", required)
+                        div(class="inputs-group password-group")
+                            img(class="icon icon-pass", src=url_for('static', filename='img/icons/svg/lock.svg'))
+                            label(class="form-label", for="password")
+                                | Password
+                            div(id="input_container")
+                                input(class="form-control", type="password", id="password", name="password", required)
+                                img(id="input_icon", class="icon", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                        p
+                            a(href="#")
+                                | Forgot password?
+                        button(class="btn btn-primary", type="submit")
+                            | Sign In
+        script(src=url_for('static', filename='js/bootstrap.min.js'))

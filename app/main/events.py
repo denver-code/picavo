@@ -9,6 +9,7 @@ from functools import wraps
 #     else:
 #         return redirect(url_for('.signin'))
 
+
 def login_required(func):
     def secure_function():
         if "username" not in session:
@@ -17,23 +18,24 @@ def login_required(func):
 
     return secure_function
 
-@socketio.on('joined', namespace='/achat')
+
+@socketio.on("joined", namespace="/achat")
 def joined(message):
-    room = session.get('room')
+    room = session.get("room")
     join_room(room)
-    emit('status', {'msg':' joined.', 'user':session.get('name')}, room=room)
+    emit("status", {"msg": " joined.", "user": session.get("name")}, room=room)
 
 
-@socketio.on('text', namespace='/achat')
+@socketio.on("text", namespace="/achat")
 def text(message):
-    room = session.get('room')
+    room = session.get("room")
     # print(rooms())
-    if message['msg'] != "":
-        emit('message', {'msg':message['msg'], 'user':session.get('name')}, room=room)
+    if message["msg"] != "":
+        emit("message", {"msg": message["msg"], "user": session.get("name")}, room=room)
 
 
-@socketio.on('left', namespace='/achat')
+@socketio.on("left", namespace="/achat")
 def left(message):
-    room = session.get('room')
+    room = session.get("room")
     leave_room(room)
-    emit('status', {'msg': ' left.', "user":session.get('name')}, room=room)
+    emit("status", {"msg": " left.", "user": session.get("name")}, room=room)
