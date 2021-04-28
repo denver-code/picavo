@@ -14,7 +14,7 @@ else:
 
 db = client["picavo"]
 users = db["users"]
-
+users.ensure_index([('UserID', 1), ('Email', 2)])
 
 def insert_db(db, data):
     return globals()[db].insert_one(data).inserted_id
