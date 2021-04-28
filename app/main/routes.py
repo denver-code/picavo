@@ -63,6 +63,7 @@ def signup():
     if request.method == "GET":
         return render_template("signup.jade")
     usr_obj = {
+        "username":request.form["username"],
         "email":request.form["email"],
         "password": request.form["password"],
         "repass": request.form["repass"],
@@ -119,7 +120,8 @@ def protect():
 def get_task(akey):
     if is_used("users", idc=session["user_id"]):
         activ_obj = find("users", idc=session["user_id"])
-        if activ_obj["Key"] == akey:
+        print(akey, activ_obj["Key"])
+        if activ_obj["Key"].decode() == akey:
             jwt_data = jwt.decode(akey, FLASK_SECRET, algorithms=['HS256'])
             if int(datetime.datetime.now().timestamp()) < jwt_data["expire"]:
                 activ_obj["Coinfirmed"] = True
