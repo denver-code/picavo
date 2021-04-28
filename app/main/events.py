@@ -12,15 +12,25 @@ def login_required(func):
             return redirect(url_for(".signin"))
         else:
             usr_obj = find("users", uname=session["username"])
-            if usr_obj["Coinfirmed"] == True:
-                if int(datetime.datetime.now().timestamp()) < session["expire"]:
-                    return func()
+            if usr_obj:
+                if usr_obj["Coinfirmed"] == True:
+                    if int(datetime.datetime.now().timestamp()) < session["expire"]:
+                        return func()
+                    else:
+                        return redirect(url_for(".signin"))
                 else:
-                    return redirect(url_for(".signin"))
+                    return "Please confirm your account, activation link has been sended to your email"
             else:
-                return "Please confirm your account, activation link has been sended to your email"
+                return redirect(url_for(".signup"))
     return secure_function
 
+def login_not_required(func):
+    def secure_function():
+        if "username" in session:
+            return redirect(url_for(".index"))
+        else:
+            return func()
+    return secure_function
 
 @socketio.on("joined", namespace="/achat")
 def joined(message):

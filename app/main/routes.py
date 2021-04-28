@@ -4,7 +4,7 @@ from . import main
 from .forms import LoginForm
 from .db import *
 from .validate import *
-from .events import login_required
+from .events import login_required, login_not_required
 from .generate import generate_id, generate_code, generate_jwt
 from .smtp import *
 import datetime
@@ -35,7 +35,8 @@ def achat():
     return render_template("chat.html", name=name, room=room)
 
 
-@main.route("/signin", methods=["GET", "POST"])
+@main.route("/signin", methods=["GET", "POST"], endpoint="signin")
+@login_not_required
 def signin():
     if request.method == "GET":
         return render_template("signin.jade")
@@ -58,7 +59,8 @@ def signin():
         return redirect(url_for(".signin"))
 
 
-@main.route("/signup", methods=["GET", "POST"])
+@main.route("/signup", methods=["GET", "POST"], endpoint="signup")
+@login_not_required
 def signup():
     if request.method == "GET":
         return render_template("signup.jade")
