@@ -127,7 +127,7 @@ def get_task(akey):
                 return redirect(url_for(".index"))
             else:
                 flash("Activate token has been expired")
-                delete_db("users", idc=session["user_id"])
+                delete_db("users", {"UserID":session["user_id"]})
                 return render_template("signup.jade"), 400
         else:
             return "Invalid key"
