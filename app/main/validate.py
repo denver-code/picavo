@@ -9,7 +9,7 @@ def check_mail(email):
 
 def check_name(uname):
     if len(uname) < 32:
-        return re.search("^[A-Za-z0-9_-]*$", uname) != None
+        return re.search("^[A-Za-z0-9_-]*$",uname) != None
     return False
 
 

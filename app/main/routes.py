@@ -5,23 +5,28 @@ from .forms import LoginForm
 from .db import *
 from .validate import *
 from .events import login_required
+from .generate import generate_id, generate_code, generate_jwt
+from .smtp import *
+import datetime
+import jwt 
+from config import FLASK_SECRET
 
-
-@main.route("/", methods=["GET", "POST"])
+@main.route('/', methods=['GET', 'POST'], endpoint='index')
+@login_required
 def index():
     # print(session["username"])
     form = LoginForm()
     if form.validate_on_submit():
-        session["name"] = form.name.data
-        session["room"] = form.room.data
-        return redirect(url_for(".achat"))
-    elif request.method == "GET":
-        form.name.data = session.get("name", "")
-        form.room.data = session.get("room", "")
-    return render_template("index.jade", form=form)
+        session['name'] = form.name.data
+        session['room'] = form.room.data
+        return redirect(url_for('.achat'))
+    elif request.method == 'GET':
+        form.name.data = session.get('name', '')
+        form.room.data = session.get('room', '')
+    return render_template('index.jade', form=form)
 
-
-@main.route("/achat")
+@login_required
+@main.route('/achat')
 def achat():
     name = session.get("name", "")
     room = session.get("room", "")
@@ -35,14 +40,16 @@ def signin():
     if request.method == "GET":
         return render_template("signin.jade")
     if request.form["email"] and request.form["password"]:
-        if is_used("users", mail=request.form["email"]):
-            user_obj = find("users", mail=request.form["email"])
-            if check_password_hash(user_obj["password"], request.form["password"]):
-                session["username"] = user_obj["username"]
-                return redirect(url_for(".index"))
-            else:
-                flash("Invalid password")
-                return redirect(url_for(".signin"))
+        if is_used("users", mail = request.form["email"]):
+           user_obj = find("users", mail=request.form["email"])
+           if check_password_hash(user_obj["Password"], request.form["password"]):
+               session["username"] = user_obj["Username"]
+               session["user_id"] = user_obj["UserID"]
+               session["expire"] = int((datetime.datetime.now() + datetime.timedelta(days=7)).timestamp())
+               return redirect(url_for(".index"))
+           else:
+               flash("Invalid password")
+               return redirect(url_for(".signin"))
         else:
             flash("User not found")
             return redirect(url_for(".signin"))
@@ -55,31 +62,47 @@ def signin():
 def signup():
     if request.method == "GET":
         return render_template("signup.jade")
-    user_data = {
-        "email": request.form["email"],
-        "username": request.form["username"],
+    usr_obj = {
+        "email":request.form["email"],
         "password": request.form["password"],
         "repass": request.form["repass"],
     }
-    if check_auth_data(user_data) == True:
+    if check_auth_data(usr_obj) == True:
         if not is_used("users", mail=request.form["email"]):
-            insert_db(
-                "users",
-                {
-                    "username": request.form["username"],
-                    "email": request.form["email"],
-                    "password": generate_password_hash(request.form["password"]),
-                },
-            )
+            a_key = generate_jwt()
+            today = datetime.date.today()
+            User = {
+                'UserID': int(generate_id()),
+                'Username': request.form["username"],
+                'Email': request.form["email"],
+                'Password': generate_password_hash(request.form["password"]),
+                "Coinfirmed": False,
+                "Key":a_key,
+
+                'Groups': [],
+                'Channels': [],
+                'Friends': [],
+                'GlobalRoles': ["User"],
+                'Country': [],
+                'Language': [],
+                'Interest': [],
+
+                'RefLink': "",
+                'isBanned': 0,
+                'SignUPDate': today.strftime("%m/%d/%y")
+            }
+            session["user_id"] = User["UserID"]
+            insert_db("users",User)
+            con_url = request.url[:-6] + f"activate/{a_key}"
+            send_confirm(request.form["email"], con_url)
             return redirect(url_for(".signin"))
         else:
             flash("user already exist")
             return redirect(url_for(".signup"))
     else:
-        flash(check_auth_data(user_data))
+        flash(check_auth_data(usr_obj))
         return render_template("signup.jade"), 400
-
-
+    
 @main.route("/logout", methods=["GET", "POST"])
 @login_required
 def logout():
@@ -91,3 +114,19 @@ def logout():
 @login_required
 def protect():
     return render_template("test.html")
+
+@main.route('/activate/<string:akey>', methods=['GET'])
+def get_task(akey):
+    if is_used("users", idc=session["user_id"]):
+        activ_obj = find("users", idc=session["user_id"])
+        if activ_obj["Key"] == akey:
+            jwt_data = jwt.decode(akey, FLASK_SECRET, algorithms=['HS256'])
+            if int(datetime.datetime.now().timestamp()) < jwt_data["expire"]:
+                activ_obj["Coinfirmed"] = True
+                update_db("users", {"UserID":session["user_id"]}, activ_obj)
+                return redirect(url_for(".index"))
+            else:
+                flash("Activate token has been expired")
+                return render_template("signup.jade"), 400
+        else:
+            return "Invalid key"

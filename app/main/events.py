@@ -2,20 +2,23 @@ from flask import session, redirect, url_for
 from flask_socketio import emit, join_room, leave_room, rooms
 from .. import socketio
 from functools import wraps
-
-# def login_required(f):
-#     if "username" in session:
-#         return f()
-#     else:
-#         return redirect(url_for('.signin'))
+import datetime
+from .db import *
 
 
 def login_required(func):
     def secure_function():
         if "username" not in session:
             return redirect(url_for(".signin"))
-        return func()
-
+        else:
+            usr_obj = find("users", uname=session["username"])
+            if usr_obj["Coinfirmed"] == True:
+                if int(datetime.datetime.now().timestamp()) < session["expire"]:
+                    return func()
+                else:
+                    return redirect(url_for(".signin"))
+            else:
+                return "Please confirm your account, activation link has been sended to your email"
     return secure_function
 
 
