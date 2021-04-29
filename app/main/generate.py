@@ -13,7 +13,11 @@ def generate_id():
         generate_id()
 
 def generate_code():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=100))
+    _code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=15))
+    if not is_used("users", cusname="Key", cusdata=_code):
+        return _code
+    else:
+        generate_code() 
 
 def generate_jwt():
     return str(jwt.encode({"expire":int((datetime.datetime.now() + datetime.timedelta(days=2)).timestamp())}, FLASK_SECRET, algorithm='HS256'))

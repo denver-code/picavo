@@ -135,3 +135,55 @@ def get_task(akey):
                 return render_template("signup.jade"), 400
         else:
             return "Invalid key"
+
+@main.route("/rpass", methods=["GET", "POST"], endpoint="reset_password")
+@login_not_required
+def reset_password():
+    if request.method == "GET":
+        return render_template("rpass.html")
+    else:
+        if request.form.get("rpass>emailSender>email"):
+            if is_used("users", mail=request.form["rpass>emailSender>email"]):
+                usr_obj = find("users", mail=request.form["rpass>emailSender>email"])
+                if usr_obj["Coinfirmed"]:
+                    vcode = generate_code()
+                    usr_obj["Key"] = vcode
+                    update_db("users", {"Email":request.form["rpass>emailSender>email"]},usr_obj)
+                    send_code(request.form["rpass>emailSender>email"], vcode)
+                    flash("Email has been sent")
+                    return render_template("rpass.html")
+                else:
+                    flash("Your account must be confirmed!")
+                    return render_template("rpass.html")
+            else:
+                flash("User not found")
+                return render_template("rpass.html")
+        elif request.form.get("rpass>codeSender>code"):
+            usr_obj = find("users", cusname="Key", cusdata=request.form["rpass>codeSender>code"])#mail=session["entered_email"]
+            if usr_obj:
+                session["entered_email"] = usr_obj["Email"]
+                session["valid_key"] = True
+                flash("Code valid, enter a new password")
+                return render_template("rpass.html")
+            else:
+                flash("Invalid code!")
+                return render_template("rpass.html")               
+        elif request.form.get("rpass>passSender>password"):
+            if request.form.get("rpass>passSender>password") == request.form.get("rpass>passSender>rePassword"):
+                if len(request.form.get("rpass>passSender>password")) >= 8:
+                    if "valid_key" in session and session["valid_key"] == True:
+                        usr_obj = find("users", mail=session["entered_email"])
+                        usr_obj["Password"] = generate_password_hash(request.form.get("rpass>passSender>password"))
+                        update_db("users", {"Email":session["entered_email"]},usr_obj)
+                        session.pop("entered_email")
+                        session.pop("valid_key")
+                        return redirect(url_for(".signin"))
+                    else:
+                        flash("You entered the wrong code or did not enter it!")
+                        return render_template("rpass.html")                        
+                else:
+                    flash("Len password must be >= 8")
+                    return render_template("rpass.html")
+            else:
+                flash("Password don't match")
+                return render_template("rpass.html")

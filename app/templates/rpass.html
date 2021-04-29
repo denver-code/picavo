@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+    <form action="rpass" method="POST">
+        <input type="email" placeholder="Email" name="rpass>emailSender>email">
+        <input type="submit" value="Sent">
+    </form>
+    <form action="rpass" method="POST">
+        <input type="text" placeholder="Code" name="rpass>codeSender>code">
+        <input type="submit" value="Enter">
+    </form>
+    <form action="rpass" method="POST">
+        <input type="password" placeholder="New password" name="rpass>passSender>password">
+        <input type="password" placeholder="Retype password" name="rpass>passSender>rePassword">
+        <input type="submit" value="Change">
+    </form>
+</body>
+</html>

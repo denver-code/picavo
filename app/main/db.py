@@ -36,10 +36,12 @@ def update_db(db, scdata, ndata):
 def delete_db(db, obj):
     globals()[db].delete_one(obj)
 
-def is_used(db, idc=None, uname=None, mail=None):
+def is_used(db, idc=None, uname=None, mail=None, cusname=None, cusdata=None):
     if uname:
         return bool(globals()[db].find_one({"Username": uname}))
     elif idc:
         return bool(globals()[db].find_one({"UserID": idc}))
     elif mail:
         return bool(globals()[db].find_one({"Email": mail}))
+    elif cusdata and cusname:
+        return bool(globals()[db].find_one({cusname:cusdata}))
