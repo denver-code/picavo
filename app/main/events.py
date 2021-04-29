@@ -8,10 +8,10 @@ from .db import *
 
 def login_required(func):
     def secure_function():
-        if "username" not in session:
+        if "user_id" not in session:
             return redirect(url_for(".signin"))
         else:
-            usr_obj = find("users", uname=session["username"])
+            usr_obj = find("users", idc=session["user_id"])
             if usr_obj:
                 if usr_obj["Coinfirmed"] == True:
                     if int(datetime.datetime.now().timestamp()) < session["expire"]:
@@ -21,12 +21,12 @@ def login_required(func):
                 else:
                     return "Please confirm your account, activation link has been sended to your email"
             else:
-                return redirect(url_for(".signup"))
+                return redirect(url_for(".signin"))
     return secure_function
 
 def login_not_required(func):
     def secure_function():
-        if "username" in session:
+        if "user_id" in session:
             return redirect(url_for(".index"))
         else:
             return func()

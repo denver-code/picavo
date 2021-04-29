@@ -20,14 +20,15 @@ def insert_db(db, data):
     return globals()[db].insert_one(data).inserted_id
 
 
-def find(db, idc=None, uname=None, mail=None):
+def find(db, idc=None, uname=None, mail=None, cusname=None, cusdata=None):
     if uname:
         return globals()[db].find_one({"Username": uname})
     elif idc:
         return globals()[db].find_one({"UserID": idc})
     elif mail:
         return globals()[db].find_one({"Email": mail})
-
+    elif cusdata and cusname:
+        return globals()[db].find_one({cusname:cusdata})
 
 def update_db(db, scdata, ndata):
     return globals()[db].update_one(scdata, {"$set": ndata}, upsert=True)

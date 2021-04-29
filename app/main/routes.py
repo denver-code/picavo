@@ -94,7 +94,6 @@ def signup():
                 'isBanned': 0,
                 'SignUPDate': today.strftime("%m/%d/%y")
             }
-            session["user_id"] = User["UserID"]
             insert_db("users",User)
             con_url = request.url[:-6] + f"activate/{a_key}"
             send_confirm(request.form["email"], con_url)
@@ -109,7 +108,9 @@ def signup():
 @main.route("/logout", methods=["GET", "POST"])
 @login_required
 def logout():
-    session.pop("username")
+    tdl = ["username", "expire", "user_id"]
+    for i in tdl:
+        session.pop(i)
     return redirect(url_for(".signin"))
 
 
@@ -121,9 +122,8 @@ def protect():
 @main.route('/activate/<string:akey>', methods=['GET'])
 def get_task(akey):
     if is_used("users", idc=session["user_id"]):
-        activ_obj = find("users", idc=session["user_id"])
-        print(akey, activ_obj["Key"])
-        if activ_obj["Key"].decode() == akey:
+        activ_obj = find("users", cusname="Key", cusdata=str(akey))
+        if activ_obj["Key"] == akey:
             jwt_data = jwt.decode(akey, FLASK_SECRET, algorithms=['HS256'])
             if int(datetime.datetime.now().timestamp()) < jwt_data["expire"]:
                 activ_obj["Coinfirmed"] = True
