@@ -13,7 +13,7 @@ def login_required(func):
         else:
             usr_obj = find("users", idc=session["user_id"])
             if usr_obj:
-                if usr_obj["Coinfirmed"] == True:
+                if usr_obj["Confirmed"] == True:
                     if int(datetime.datetime.now().timestamp()) < session["expire"]:
                         return func()
                     else:

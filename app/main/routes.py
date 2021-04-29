@@ -79,8 +79,9 @@ def signup():
                 'Username': request.form["username"],
                 'Email': request.form["email"],
                 'Password': generate_password_hash(request.form["password"]),
-                "Coinfirmed": False,
+                "Confirmed": False,
                 "Key":a_key,
+                "Souls":0,
 
                 'Groups': [],
                 'Channels': [],
@@ -105,7 +106,7 @@ def signup():
         flash(check_auth_data(usr_obj))
         return render_template("signup.jade"), 400
     
-@main.route("/logout", methods=["GET", "POST"])
+@main.route("/logout", methods=["GET", "POST"], endpoint="logout")
 @login_required
 def logout():
     tdl = ["username", "expire", "user_id"]
@@ -121,13 +122,13 @@ def protect():
 
 @main.route('/activate/<string:akey>', methods=['GET'])
 def get_task(akey):
-    if is_used("users", idc=session["user_id"]):
+    if is_used("users", cusname="Key", cusdata=str(akey)):
         activ_obj = find("users", cusname="Key", cusdata=str(akey))
         if activ_obj["Key"] == akey:
             jwt_data = jwt.decode(akey, FLASK_SECRET, algorithms=['HS256'])
             if int(datetime.datetime.now().timestamp()) < jwt_data["expire"]:
-                activ_obj["Coinfirmed"] = True
-                update_db("users", {"UserID":session["user_id"]}, activ_obj)
+                activ_obj["Confirmed"] = True
+                update_db("users", {"UserID":activ_obj["UserID"]}, activ_obj)
                 return redirect(url_for(".index"))
             else:
                 flash("Activate token has been expired")
@@ -137,7 +138,7 @@ def get_task(akey):
             return "Invalid key"
 
 @main.route("/rpass", methods=["GET", "POST"], endpoint="reset_password")
-@login_not_required
+# @login_not_required
 def reset_password():
     if request.method == "GET":
         return render_template("rpass.html")
@@ -145,7 +146,7 @@ def reset_password():
         if request.form.get("rpass>emailSender>email"):
             if is_used("users", mail=request.form["rpass>emailSender>email"]):
                 usr_obj = find("users", mail=request.form["rpass>emailSender>email"])
-                if usr_obj["Coinfirmed"]:
+                if usr_obj["Confirmed"]:
                     vcode = generate_code()
                     usr_obj["Key"] = vcode
                     update_db("users", {"Email":request.form["rpass>emailSender>email"]},usr_obj)
@@ -187,3 +188,80 @@ def reset_password():
             else:
                 flash("Password don't match")
                 return render_template("rpass.html")
+
+@main.route("/profile", methods=["GET"], endpoint="profile")
+@login_required
+def profile():
+    if request.method == "GET":
+        usr_obj = find("users", idc=session["user_id"])
+        return render_template("profile.html",user_obj=usr_obj)
+
+@main.route("/settings", methods=["GET", "POST"], endpoint="settings")
+@login_required
+def settings():
+    if request.method == "GET":
+        usr_obj = find("users", idc=session["user_id"])
+        return render_template("settings.html",usr_obj=usr_obj)
+    if request.form.get("rprofile>user>username"):
+        usr_obj = find("users", idc=session["user_id"])
+        if check_name(request.form.get("rprofile>user>username")):
+            usr_obj["Username"] = request.form.get("rprofile>user>username")
+            update_db("users", {"UserID":session["user_id"]}, usr_obj)
+            return redirect(url_for(".profile"))
+        else:
+            flash("Invalid name")
+            return redirect(url_for(".settings"))
+
+
+@main.route("/rmail", methods=["GET", "POST"], endpoint="reset_email")
+@login_required
+def reset_email():
+    if request.method == "GET":
+        return render_template("rmail.html")
+    else:
+        if request.form.get("rmail>emailSender>email"):
+            if is_used("users", mail=request.form["rmail>emailSender>email"]):
+                usr_obj = find("users", mail=request.form["rmail>emailSender>email"])
+                if usr_obj["Confirmed"]:
+                    vcode = generate_code()
+                    usr_obj["Key"] = vcode
+                    update_db("users", {"Email":request.form["rmail>emailSender>email"]},usr_obj)
+                    send_code(request.form["rmail>emailSender>email"], vcode)
+                    flash("Email has been sent")
+                    return render_template("rmail.html")
+                else:
+                    flash("Your account must be confirmed!")
+                    return render_template("rmail.html"), 400
+            else:
+                flash("User not found")
+                return render_template("rmail.html"), 400
+        elif request.form.get("rmail>codeSender>code"):
+            usr_obj = find("users", cusname="Key", cusdata=request.form["rmail>codeSender>code"])#mail=session["entered_email"]
+            if usr_obj:
+                session["entered_email"] = usr_obj["Email"]
+                session["valid_key"] = True
+                flash("Code valid, enter a new password")
+                return render_template("rmail.html")
+            else:
+                flash("Invalid code!")
+                return render_template("rmail.html")      , 400         
+        elif request.form.get("rmail>emailSender>newEmail"):
+            if check_mail(request.form.get("rmail>emailSender>newEmail")):
+                    if "valid_key" in session and session["valid_key"] == True:
+                        usr_obj = find("users", mail=session["entered_email"])
+                        a_key = generate_jwt()
+                        usr_obj["Email"] = request.form.get("rmail>emailSender>newEmail")
+                        usr_obj["Key"] = a_key
+                        usr_obj["Confirmed"] = False
+                        update_db("users", {"Email":session["entered_email"]},usr_obj)
+                        con_url = request.url[:-5] + f"activate/{a_key}"
+                        send_confirm(usr_obj["Email"], con_url)
+                        session.pop("entered_email")
+                        session.pop("valid_key")
+                        return redirect(url_for(".logout"))
+                    else:
+                        flash("You entered the wrong code or did not enter it!")
+                        return render_template("rmail.html")  , 400                      
+            else:
+                flash("Invalid email")
+                return render_template("rmail.html"), 400

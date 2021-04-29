@@ -30,7 +30,7 @@ def send_code(to_address, ccode):
     msg['From'] = username
     msg['To'] = to_address
     html = """<p><h2>Hey!</h2></p> 
-<p><h3>If you want to reset your password continue read this message, else close this message.</h3></p>
+<p><h3>If you want to reset your password/email continue read this message, else close this message.</h3></p>
 <p><h3>To do this, enter a code below to form in picavo page.</h3></p>
 <center><h1><b>"""+ccode+"""</b></h1></center>"""
     part1 = MIMEText(html, 'html')
