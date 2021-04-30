@@ -22,7 +22,9 @@ def login_required(func):
                     return "Please confirm your account, activation link has been sended to your email"
             else:
                 return redirect(url_for(".signin"))
+
     return secure_function
+
 
 def login_not_required(func):
     def secure_function():
@@ -30,7 +32,9 @@ def login_not_required(func):
             return redirect(url_for(".index"))
         else:
             return func()
+
     return secure_function
+
 
 @socketio.on("joined", namespace="/achat")
 def joined(message):
@@ -42,7 +46,6 @@ def joined(message):
 @socketio.on("text", namespace="/achat")
 def text(message):
     room = session.get("room")
-    # print(rooms())
     if message["msg"] != "":
         emit("message", {"msg": message["msg"], "user": session.get("name")}, room=room)
 

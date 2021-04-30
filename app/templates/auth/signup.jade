@@ -1,0 +1,49 @@
+!!! 5
+html(lang="en")
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0, shrink-to-fit=no")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        link(rel="stylesheet" href=url_for('static', filename='css/bootstrap.min.css'))
+        link(rel="stylesheet" href=url_for('static', filename='css/auth.css'))
+        title Sign Up
+    body
+        main
+            - var messages = get_flashed_messages()
+            if messages
+                ul(class="flashes")
+                    for message in messages
+                        li= message
+            .container
+                .block
+                    h1 Sign Up
+                    p Already have account? 
+                        a(href=url_for('.signin'))
+                            | Sign in!
+                    form(action="signup", method="post")
+                        .inputs-group.email-group
+                            img(class="icon", src=url_for('static', filename='img/icons/svg/email.svg'))
+                            label(for="register>regSender>email")
+                                | Email 
+                            input(class="form-control", type="email", id="register>regSender>email", name="register>regSender>email", required)
+                        .inputs-group.username-group
+                            img(class="icon", src=url_for('static', filename='img/icons/svg/account.svg'))
+                            label(for="register>regSender>username")
+                                |Username
+                            input(class="form-control", type="text", id="register>regSender>username", name="register>regSender>username", required)
+                        .inputs-group.password-group
+                            img(class="icon icon-pass", src=url_for('static', filename='img/icons/svg/lock.svg'))
+                            label(for="register>regSender>password")
+                                | Password
+                            #input_container
+                                input(class="form-control", type="password", id="register>regSender>password", name="register>regSender>password", required)
+                                img(id="input_icon", class="icon", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                        .inputs-group.password-group
+                            img(class="icon icon-pass", src=url_for('static', filename='img/icons/svg/lock.svg'))
+                            label(for="register>regSender>rePassword")
+                                | Repeat password
+                            #input_container2
+                                input(class="form-control", type="password", id="register>regSender>rePassword", name="register>regSender>rePassword", required)
+                                img(id="input_icon2", class="icon", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                        button(class="btn btn-primary", type="submit")
+                            | Sign Up

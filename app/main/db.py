@@ -3,8 +3,8 @@ from bson.objectid import ObjectId
 from config import DATABASE, DATABASE_LOCAL
 import requests
 
-#? Для локалки mongodb://localhost:27017
-r = requests.get('http://ip.42.pl/raw')
+
+r = requests.get("http://ip.42.pl/raw")
 ip = r.text
 
 if ip != "68.183.210.191":
@@ -14,7 +14,8 @@ else:
 
 db = client["picavo"]
 users = db["users"]
-users.ensure_index([('UserID', 1), ('Email', 2)])
+users.ensure_index([("UserID", 1), ("Email", 2)])
+
 
 def insert_db(db, data):
     return globals()[db].insert_one(data).inserted_id
@@ -28,13 +29,16 @@ def find(db, idc=None, uname=None, mail=None, cusname=None, cusdata=None):
     elif mail:
         return globals()[db].find_one({"Email": mail})
     elif cusdata and cusname:
-        return globals()[db].find_one({cusname:cusdata})
+        return globals()[db].find_one({cusname: cusdata})
+
 
 def update_db(db, scdata, ndata):
     return globals()[db].update_one(scdata, {"$set": ndata}, upsert=True)
 
+
 def delete_db(db, obj):
     globals()[db].delete_one(obj)
+
 
 def is_used(db, idc=None, uname=None, mail=None, cusname=None, cusdata=None):
     if uname:
@@ -44,4 +48,4 @@ def is_used(db, idc=None, uname=None, mail=None, cusname=None, cusdata=None):
     elif mail:
         return bool(globals()[db].find_one({"Email": mail}))
     elif cusdata and cusname:
-        return bool(globals()[db].find_one({cusname:cusdata}))
+        return bool(globals()[db].find_one({cusname: cusdata}))

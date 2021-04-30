@@ -19,6 +19,51 @@ body
             transform: translate(-50%, -50%)
             background: $bg-color
             border-radius: 25px
+            .block.stepper-block
+                margin: 30px 65px 75px 65px
+                .bs-stepper-header
+                    position: absolute
+                    bottom: -5px
+                    left: 50%
+                    transform: translate(-50%, -50%)
+                    width: 100%
+                    justify-content: center
+                    .step
+                        #stepperEmail
+                            padding-left: 20px
+                        #stepperPass
+                            padding-right: 20px
+                    .active
+                        .bs-stepper-circle
+                            background-color: #55B790 !important
+                    .step-trigger
+                        padding: 0
+                        span:nth-child(1)
+                            font-family: 'Ubuntu'
+                            img
+                                display: block
+                                margin: 0 !important
+                                padding: 0 !important
+                                height: 17px !important
+                    @media screen and ( max-width: 520px )
+                        bottom: -40px
+                        .line
+                            display: none
+                        .step-trigger
+                            flex-direction: row
+                        #stepperEmail, #stepperPass
+                            padding: 0 !important
+                @media screen and ( max-width: 469px )
+                    margin: 30px 15px 80px 15px
+                .bs-stepper-content
+                    padding: 0
+                    .button-group
+                        display: flex
+                        .cancel
+                            background: #fff
+                            color: #55B790
+                    form
+                        margin-top: 40px
             .block
                 margin: 30px 65px 45px 65px
                 h1
@@ -45,9 +90,9 @@ body
                         @include adaptiv-height(50, 42)
                     .inputs-group:not(.email-group)
                         margin-top: 10px
-                    #input_container, #input_container2
+                    #input_container, #input_container2, #input_container3
                         position: relative
-                    #input_icon, #input_icon2
+                    #input_icon, #input_icon2, #input_icon3
                         position: absolute
                         bottom: 11px
                         right: 10px
@@ -60,13 +105,9 @@ body
                         width: 36%
                         margin: 25px auto 0 auto
                         background: #55B790
+                        color: #fff
                         border-radius: 10px
                         border: none
-                        box-shadow: 0px 3px 0px 0px rgba(85, 183, 144, 0.4)
-                        transition: 0.5s
-                        &:active
-                            margin-top: 26px
-                            box-shadow: none
                         @include adaptiv-font(25, 20)
                 @media screen and (max-width: 520px)
                     margin: 20px 35px 35px 35px

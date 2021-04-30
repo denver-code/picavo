@@ -1,0 +1,45 @@
+!!! 5
+html(lang="en")
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0, shrink-to-fit=no")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        link(rel="stylesheet" href=url_for('static', filename='css/bootstrap.min.css'))
+        link(rel="stylesheet" href=url_for('static', filename='css/auth.css'))
+        title Sign In
+    body
+        main
+            - var messages = get_flashed_messages()
+            if messages
+                ul.flashes
+                    for message in messages
+                        li= message
+            .container
+                .block
+                    h1 Sign In
+                    p Don’t have account? 
+                        a(href=url_for('.signup'))
+                            | Sign up!
+                    form(action="signin", method="post")
+                        .inputs-group.email-group
+                            img.icon(src=url_for('static', filename='img/icons/svg/email.svg'))
+                            label(for="login>logSender>email")
+                                | Email 
+                            input.form-control(type="email", id="login>logSender>email", name="login>logSender>email", required)
+                        .inputs-group.password-group
+                            img.icon.icon-pass(src=url_for('static', filename='img/icons/svg/lock.svg'))
+                            label(for="login>logSender>password")
+                                | Password
+                            #input_container
+                                input.form-control(type="password", id="login>logSender>password", name="login>logSender>password", required)
+                                img.icon(id="input_icon", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                        p
+                            a(href=url_for('.reset_password'))
+                                | Forgot password?
+                        button.btn(type="submit")
+                            | Sign In
+        script(src=url_for('static', filename='js/bootstrap.bundle.min.js'))
+        script(src=url_for('static', filename='js/tools/eyeHideShow.js'))
+        script.
+            
+
