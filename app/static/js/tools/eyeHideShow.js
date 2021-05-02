@@ -1,12 +1,17 @@
-eyeHideShow = (pass, repass) => {
-    $("body").on("click", ".icon", () => {
-        if ($(pass).attr("type") == "password") {
-            $(this).addClass("view");
-            $(pass).attr("type", "text");
-        } else {
-            $(this).removeClass("view");
-            $(pass).attr("type", "password");
-        }
-        return false;
-    });
+eyeHideShow = (pass, repass='') => {
+    if ($(pass).attr("type") == "password") {
+        $(".icon.eye").attr("src", '/static/img/icons/svg/eyeOff.svg');
+        $(pass).attr("type", "text");
+    } else {
+        $(".icon.eye").attr("src", '/static/img/icons/svg/eye.svg');
+        $(pass).attr("type", "password");
+    }
+    if (repass && $(repass).attr("type") == "password") {
+        $(".icon.eye").attr("src", '/static/img/icons/svg/eyeOff.svg');
+        $(repass).attr("type", "text");
+    } else if (repass && $(repass).attr("type") == "text") {
+        $(".icon.eye").attr("src", '/static/img/icons/svg/eye.svg');
+        $(repass).attr("type", "password");
+    }
+    return false;
 };

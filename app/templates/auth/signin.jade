@@ -23,23 +23,21 @@ html(lang="en")
                     form(action="signin", method="post")
                         .inputs-group.email-group
                             img.icon(src=url_for('static', filename='img/icons/svg/email.svg'))
-                            label(for="login>logSender>email")
+                            label(for="login_logSender_email")
                                 | Email 
-                            input.form-control(type="email", id="login>logSender>email", name="login>logSender>email", required)
+                            input.form-control(type="email", id="login_logSender_email", name="login_logSender_email", required)
                         .inputs-group.password-group
                             img.icon.icon-pass(src=url_for('static', filename='img/icons/svg/lock.svg'))
-                            label(for="login>logSender>password")
+                            label(for="login_logSender_password")
                                 | Password
                             #input_container
-                                input.form-control(type="password", id="login>logSender>password", name="login>logSender>password", required)
-                                img.icon(id="input_icon", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                                input.form-control(type="password", id="login_logSender_password", name="login_logSender_password", required)
+                                img.icon.eye(id="input_icon", onclick="eyeHideShow('#login_logSender_password')", src=url_for('static', filename='img/icons/svg/eye.svg'))
                         p
                             a(href=url_for('.reset_password'))
                                 | Forgot password?
                         button.btn(type="submit")
                             | Sign In
+        script(src="https://code.jquery.com/jquery-3.6.0.min.js", integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=", crossorigin="anonymous")
         script(src=url_for('static', filename='js/bootstrap.bundle.min.js'))
         script(src=url_for('static', filename='js/tools/eyeHideShow.js'))
-        script.
-            
-

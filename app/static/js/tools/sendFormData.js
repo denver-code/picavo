@@ -6,6 +6,11 @@ sendFormData = (fid) => {
         url: "#{url_for('.reset_password')}",
         data: data,
         success: (msg) => {
+            if (fid === "#emailForm") {
+                email = data.split(/\=/)[1];
+                email = email.replace('%40', '@')
+                $('#confirm p').append(email);
+            }
             stepper.next();
             $('.toast-body').text(msg)
             var toastElList = [].slice.call(document.querySelectorAll('.toast'))
