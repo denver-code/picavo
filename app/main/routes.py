@@ -43,13 +43,13 @@ def signin():
     if request.method == "GET":
         return render_template("auth/signin.jade")
     if (
-        request.form["login>logSender>email"]
-        and request.form["login>logSender>password"]
+        request.form["login_logSender_email"]
+        and request.form["login_logSender_password"]
     ):
-        if is_used("users", mail=request.form["login>logSender>email"]):
-            user_obj = find("users", mail=request.form["login>logSender>email"])
+        if is_used("users", mail=request.form["login_logSender_email"]):
+            user_obj = find("users", mail=request.form["login_logSender_email"])
             if check_password_hash(
-                user_obj["Password"], request.form["login>logSender>password"]
+                user_obj["Password"], request.form["login_logSender_password"]
             ):
                 session["username"] = user_obj["Username"]
                 session["user_id"] = user_obj["UserID"]
@@ -74,20 +74,20 @@ def signup():
     if request.method == "GET":
         return render_template("auth/signup.jade")
     usr_obj = {
-        "username": request.form["register>regSender>username"],
-        "email": request.form["register>regSender>email"],
-        "password": request.form["register>regSender>password"],
-        "repass": request.form["register>regSender>rePassword"],
+        "username": request.form["register_regSender_username"],
+        "email": request.form["register_regSender_email"],
+        "password": request.form["register_regSender_password"],
+        "repass": request.form["register_regSender_rePassword"],
     }
     if check_auth_data(usr_obj) == True:
-        if not is_used("users", mail=request.form["email"]):
+        if not is_used("users", mail=usr_obj["email"]):
             a_key = generate_jwt()
             today = datetime.date.today()
             User = {
                 "UserID": int(generate_id()),
-                "Username": request.form["username"],
-                "Email": request.form["email"],
-                "Password": generate_password_hash(request.form["password"]),
+                "Username": usr_obj["username"],
+                "Email": usr_obj["email"],
+                "Password": generate_password_hash(usr_obj["password"]),
                 "Confirmed": False,
                 "Key": a_key,
                 "Souls": 0,
@@ -103,8 +103,8 @@ def signup():
                 "SignUPDate": today.strftime("%m/%d/%y"),
             }
             insert_db("users", User)
-            con_url = request.url[:-6] + f"activate/{a_key}"
-            send_confirm(request.form["email"], con_url)
+            con_url = request.url[:-6] + f"activate/{str(a_key)}"
+            send_confirm(usr_obj["email"], con_url)
             return redirect(url_for(".signin"))
         else:
             flash("user already exist")
@@ -129,7 +129,7 @@ def protect():
     return render_template("test.html")
 
 
-@main.route("/activate/<string:akey>", methods=["GET"])
+@main.route("/auth/activate/<string:akey>", methods=["GET"])
 def get_task(akey):
     if is_used("users", cusname="Key", cusdata=str(akey)):
         activ_obj = find("users", cusname="Key", cusdata=str(akey))
@@ -152,26 +152,26 @@ def reset_password():
     if request.method == "GET":
         return render_template("auth/forgotPassword.jade")
     else:
-        if request.form.get("rpass>emailSender>email"):
-            if is_used("users", mail=request.form["rpass>emailSender>email"]):
-                usr_obj = find("users", mail=request.form["rpass>emailSender>email"])
+        if request.form.get("rpass_emailSender_email"):
+            if is_used("users", mail=request.form["rpass_emailSender_email"]):
+                usr_obj = find("users", mail=request.form["rpass_emailSender_email"])
                 if usr_obj["Confirmed"]:
                     vcode = generate_code()
                     usr_obj["Key"] = vcode
                     update_db(
                         "users",
-                        {"Email": request.form["rpass>emailSender>email"]},
+                        {"Email": request.form["rpass_emailSender_email"]},
                         usr_obj,
                     )
-                    send_code(request.form["rpass>emailSender>email"], vcode)
+                    send_code(request.form["rpass_emailSender_email"], vcode)
                     return "Email has been sent"
                 else:
                     return "Your account must be confirmed!", 400
             else:
                 return "User not found", 404
-        elif request.form.get("rpass>codeSender>code"):
+        elif request.form.get("rpass_codeSender_code"):
             usr_obj = find(
-                "users", cusname="Key", cusdata=request.form["rpass>codeSender>code"]
+                "users", cusname="Key", cusdata=request.form["rpass_codeSender_code"]
             )
             if usr_obj:
                 session["entered_email"] = usr_obj["Email"]
@@ -179,15 +179,15 @@ def reset_password():
                 return "Code valid, enter a new password"
             else:
                 return "Invalid code!", 400
-        elif request.form.get("rpass>passSender>password"):
-            if request.form.get("rpass>passSender>password") == request.form.get(
-                "rpass>passSender>rePassword"
+        elif request.form.get("rpass_passSender_password"):
+            if request.form.get("rpass_passSender_password") == request.form.get(
+                "rpass_passSender_rePassword"
             ):
-                if len(request.form.get("rpass>passSender>password")) >= 8:
+                if len(request.form.get("rpass_passSender_password")) >= 8:
                     if "valid_key" in session and session["valid_key"] == True:
                         usr_obj = find("users", mail=session["entered_email"])
                         usr_obj["Password"] = generate_password_hash(
-                            request.form.get("rpass>passSender>password")
+                            request.form.get("rpass_passSender_password")
                         )
                         update_db("users", {"Email": session["entered_email"]}, usr_obj)
                         session.pop("entered_email")
@@ -196,7 +196,7 @@ def reset_password():
                     else:
                         return "You entered the wrong code or did not enter it!", 400
                 else:
-                    return "Len password must be >= 8", 400
+                    return "Len password must be _= 8", 400
             else:
                 return "Password don't match", 400
 
@@ -215,10 +215,10 @@ def settings():
     if request.method == "GET":
         usr_obj = find("users", idc=session["user_id"])
         return render_template("settings.html", usr_obj=usr_obj)
-    if request.form.get("rprofile>user>username"):
+    if request.form.get("rprofile_user_username"):
         usr_obj = find("users", idc=session["user_id"])
-        if check_name(request.form.get("rprofile>user>username")):
-            usr_obj["Username"] = request.form.get("rprofile>user>username")
+        if check_name(request.form.get("rprofile_user_username")):
+            usr_obj["Username"] = request.form.get("rprofile_user_username")
             update_db("users", {"UserID": session["user_id"]}, usr_obj)
             return redirect(url_for(".profile"))
         else:
@@ -232,18 +232,18 @@ def reset_email():
     if request.method == "GET":
         return render_template("rmail.html")
     else:
-        if request.form.get("rmail>emailSender>email"):
-            if is_used("users", mail=request.form["rmail>emailSender>email"]):
-                usr_obj = find("users", mail=request.form["rmail>emailSender>email"])
+        if request.form.get("rmail_emailSender_email"):
+            if is_used("users", mail=request.form["rmail_emailSender_email"]):
+                usr_obj = find("users", mail=request.form["rmail_emailSender_email"])
                 if usr_obj["Confirmed"]:
                     vcode = generate_code()
                     usr_obj["Key"] = vcode
                     update_db(
                         "users",
-                        {"Email": request.form["rmail>emailSender>email"]},
+                        {"Email": request.form["rmail_emailSender_email"]},
                         usr_obj,
                     )
-                    send_code(request.form["rmail>emailSender>email"], vcode)
+                    send_code(request.form["rmail_emailSender_email"], vcode)
                     flash("Email has been sent")
                     return render_template("rmail.html")
                 else:
@@ -252,9 +252,9 @@ def reset_email():
             else:
                 flash("User not found")
                 return render_template("rmail.html"), 400
-        elif request.form.get("rmail>codeSender>code"):
+        elif request.form.get("rmail_codeSender_code"):
             usr_obj = find(
-                "users", cusname="Key", cusdata=request.form["rmail>codeSender>code"]
+                "users", cusname="Key", cusdata=request.form["rmail_codeSender_code"]
             )  # mail=session["entered_email"]
             if usr_obj:
                 session["entered_email"] = usr_obj["Email"]
@@ -264,12 +264,12 @@ def reset_email():
             else:
                 flash("Invalid code!")
                 return render_template("rmail.html"), 400
-        elif request.form.get("rmail>emailSender>newEmail"):
-            if check_mail(request.form.get("rmail>emailSender>newEmail")):
+        elif request.form.get("rmail_emailSender_newEmail"):
+            if check_mail(request.form.get("rmail_emailSender_newEmail")):
                 if "valid_key" in session and session["valid_key"] == True:
                     usr_obj = find("users", mail=session["entered_email"])
-                    a_key = generate_jwt()
-                    usr_obj["Email"] = request.form.get("rmail>emailSender>newEmail")
+                    a_key = str(generate_jwt())
+                    usr_obj["Email"] = request.form.get("rmail_emailSender_newEmail")
                     usr_obj["Key"] = a_key
                     usr_obj["Confirmed"] = False
                     update_db("users", {"Email": session["entered_email"]}, usr_obj)

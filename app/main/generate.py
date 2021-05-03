@@ -26,11 +26,7 @@ def generate_jwt():
     return str(
         jwt.encode(
             {
-                "expire": int(
-                    (datetime.datetime.now() + datetime.timedelta(days=2)).timestamp()
-                )
+                "expire": int((datetime.datetime.now() + datetime.timedelta(days=2)).timestamp())
             },
             FLASK_SECRET,
-            algorithm="HS256",
-        )
-    )
+            algorithm="HS256",))
