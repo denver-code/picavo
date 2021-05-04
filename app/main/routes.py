@@ -192,7 +192,7 @@ def reset_password():
                         update_db("users", {"Email": session["entered_email"]}, usr_obj)
                         session.pop("entered_email")
                         session.pop("valid_key")
-                        return redirect(url_for(".signin"))
+                        return "Your password has been change"
                     else:
                         return "You entered the wrong code or did not enter it!", 400
                 else:

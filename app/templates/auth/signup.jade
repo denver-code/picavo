@@ -37,14 +37,18 @@ html(lang="en")
                                 | Password
                             #input_container
                                 input(class="form-control", type="password", id="register_regSender_password", name="register_regSender_password", required)
-                                img.icon.eye(id="input_icon", onclick="eyeHideShow('#register_regSender_password', '#register_regSender_rePassword')",src=url_for('static', filename='img/icons/svg/eye.svg'))
+                                img.icon.eye(id="input_icon",
+                                    onclick="eyeHideShow('#register_regSender_password', '#register_regSender_rePassword')",
+                                    src=url_for('static', filename='img/icons/svg/eye.svg'))
                         .inputs-group.password-group
                             img(class="icon icon-pass", src=url_for('static', filename='img/icons/svg/lock.svg'))
                             label(for="register_regSender_rePassword")
                                 | Repeat password
                             #input_container2
                                 input(class="form-control", type="password", id="register_regSender_rePassword", name="register_regSender_rePassword", required)
-                                img.icon.eye(id="input_icon2", onclick="eyeHideShow('#register_regSender_password', '#register_regSender_rePassword')", src=url_for('static', filename='img/icons/svg/eye.svg'))
+                                img.icon.eye(id="input_icon2",
+                                    onclick="eyeHideShow('#register_regSender_password', '#register_regSender_rePassword')",
+                                    src=url_for('static', filename='img/icons/svg/eye.svg'))
                         button(class="btn btn-primary", type="submit")
                             | Sign Up
         script(src="https://code.jquery.com/jquery-3.6.0.min.js", integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=", crossorigin="anonymous")
